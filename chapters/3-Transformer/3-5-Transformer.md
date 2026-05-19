@@ -2,7 +2,7 @@
 
 定义 Transformer 单个模块以及整个 Decoder-only Transformer 架构。Transformer 原文架构如下。
 
-<img src="C:/Users/nashk/Documents/nashknight/LLM-Whiteboard/assets/transformer.png" alt="transformer" style="zoom:50%;" />
+<img src="../../assets/transformer.png" alt="transformer" style="zoom:50%;" />
 
 原文使用的是 Post-LN，下面代码实现使用现在更常用的 Pre-LN，梯度更稳定。另外，位置编码这里使用的是可学习编码，如果使用 RoPE，参考 3.3 小节直接修改调用的多头注意力类即可，不需要改动下面的代码（当然可学习编码要去掉）。
 

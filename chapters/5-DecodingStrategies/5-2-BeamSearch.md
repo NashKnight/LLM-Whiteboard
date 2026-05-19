@@ -2,7 +2,7 @@
 
 集束搜索，每次保留多条累计分数最高的生成路径，最终返回分数最高的路径。以下为 `beam_size=2` 的示例。
 
-![image-beam_search](C:/Users/nashk/Documents/nashknight/LLM-Whiteboard/assets/beam_search.png)
+![image-beam_search](../../assets/beam_search.png)
 
 ```python
 import torch

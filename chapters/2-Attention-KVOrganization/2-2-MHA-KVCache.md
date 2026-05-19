@@ -4,7 +4,7 @@
 
 使用 KV Cache 的自回归生成中，每步只计算当前 token 的 Q/K/V，历史 token 的 K/V 保存在缓存中复用，从而避免重复计算加速推理。
 
-![kv_cache](C:/Users/nashk/Documents/nashknight/LLM-Whiteboard/assets/kv_cache.png)
+![kv_cache](../../assets/kv_cache.png)
 
 ```python
 import math

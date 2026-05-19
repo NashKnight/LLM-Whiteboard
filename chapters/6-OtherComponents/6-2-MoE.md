@@ -6,7 +6,7 @@
 
 本质上 MoE 是在 Transformer 的 FFN 层上做稀疏化扩展。先由 Router 为每个 token 计算各专家得分，再选取得分最高的 Top-k 专家处理，并按路由权重聚合输出。
 
-![MoE](C:/Users/nashk/Documents/nashknight/LLM-Whiteboard/assets/MoE.png)
+![MoE](../../assets/MoE.png)
 
 ```python
 import torch
