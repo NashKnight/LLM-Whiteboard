@@ -127,7 +127,7 @@ cross_attn = CrossAttention(d_model)
 out = cross_attn(x_q, x_kv)
 ```
 
-## 2. 按 KV 结构划分的 Attention
+## 2. 按 KV 组织方式划分的 Attention
 
 ### 2.1 Multi-Head Self-Attention (MHA)
 
@@ -174,8 +174,6 @@ class MultiHeadAttention(nn.Module):
         # 计算注意力得分并添加掩码, scores:(batch, num_heads, seq_len, seq_len)
         scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.head_dim)
         if mask is not None:
-            if mask.dim() == 3:  # 支持传入(batch, seq_len, seq_len)的mask
-                mask = mask.unsqueeze(1)  # mask: (batch, 1, seq_len, seq_len)
             scores = scores.masked_fill(mask, float('-inf'))
             
         # 计算注意力权重和输出
@@ -262,8 +260,6 @@ class MultiHeadAttention(nn.Module):
         # 计算注意力得分并添加掩码, scores:(batch, num_heads, seq_len, past_len+seq_len)
         scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.head_dim)
         if mask is not None:
-            if mask.dim() == 3:  # 支持传入(batch, seq_len, past_len+seq_len)的mask
-                mask = mask.unsqueeze(1)  # mask: (batch, 1, seq_len, past_len+seq_len)
             scores = scores.masked_fill(mask, float('-inf'))
         
         # 计算注意力权重和输出
@@ -366,8 +362,6 @@ class MultiQueryAttention(nn.Module):
         # 自动广播K计算注意力得分并添加掩码, scores:(batch, num_heads, seq_len, seq_len)
         scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.head_dim)
         if mask is not None:
-            if mask.dim() == 3:
-                mask = mask.unsqueeze(1)  # 支持传入(batch, seq_len, seq_len)的mask
             scores = scores.masked_fill(mask, float("-inf"))  # mask: (batch, 1, seq_len, seq_len)
         
         # 计算注意力权重和输出
@@ -448,8 +442,6 @@ class GroupedQueryAttention(nn.Module):
         # 计算注意力得分并添加掩码, scores: (batch, num_q_heads, seq_len, seq_len)
         scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.head_dim)
         if mask is not None:
-            if mask.dim() == 3:  # 支持传入(batch, seq_len, seq_len)的mask
-                mask = mask.unsqueeze(1)  # mask: (batch, 1, seq_len, seq_len)
             scores = scores.masked_fill(mask, float('-inf'))
         
         # 计算注意力权重和输出
@@ -548,8 +540,6 @@ class MultiHeadLatentAttention(nn.Module):
         # 计算注意力得分并添加掩码, scores: (batch, num_heads, seq_len, past_len + seq_len)
         scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.head_dim)
         if mask is not None:
-            if mask.dim() == 3:  # 支持传入(batch, seq_len, seq_len)的mask
-                mask = mask.unsqueeze(1)
             scores = scores.masked_fill(mask, float('-inf'))
         
         # 计算注意力权重和输出
@@ -563,8 +553,6 @@ class MultiHeadLatentAttention(nn.Module):
         # return: (batch, seq_len, d_model), (batch, past_len + seq_len, latent_dim)
         return self.o_proj(out), new_latent_kv
 ```
-
-
 
 ## 3. Transformer
 
@@ -813,6 +801,8 @@ class SwiGLU(nn.Module):
 定义 Transformer 单个模块以及整个 Decoder-only Transformer 架构。Transformer 原文架构如下。
 
 <img src="assets/transformer.png" alt="transformer" style="zoom:50%;" />
+
+原文使用的是 Post-LN，下面代码实现使用现在更常用的 Pre-LN，梯度更稳定。另外，位置编码这里使用的是可学习编码，如果使用 RoPE，参考 3.3 小节直接修改调用的多头注意力类即可，不需要改动下面的代码（当然可学习编码要去掉）。
 
 ```python
 import torch
